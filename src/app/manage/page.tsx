@@ -1,8 +1,9 @@
 "use client";
 
 import Navbar from "../components/navbarAdmin/page";
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { addStaff } from "../../lib/axios/axios";
+
 
 export default function manage() {
 
@@ -17,7 +18,7 @@ export default function manage() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -25,23 +26,37 @@ export default function manage() {
       });
     };
 
-  const handleSubmit  = async(e) => {
-    e.preventDefault();
-    addStaff(formData)
-    .then((result) => {
-        if(result.response.status!==200){
-          setError(JSON.stringify(result.response.data.message, null,2));
-        }else{
-          setError("");
-        };
-    });
-    setFormData({
-      name: "",
-      email: "",
-      role: "",
-      about: ""
-    })
-  };
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setSuccess("");
+      setError("");
+    
+      try {
+        const response = await addStaff(formData);
+        try {
+          if(response.response.status!==200){
+            setError(response.response.data.message);
+            return;
+          }
+        }catch(error: any){
+        }
+        try{
+          setSuccess(`${response.message}`);
+          setFormData({
+            name: "",
+            email: "",
+            role: "",
+            about: ""
+          });
+        }catch(error: any){
+          setError("Something went wrong, please try again later.")
+        }
+        
+      }catch (error: any) {
+          setError("Something went wrong, please try again later.");
+      }
+    };
+    
   
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -50,14 +65,14 @@ export default function manage() {
         <h1>Welcome to the manager page.</h1>
         <p>Let's pretend you had to be an admin to reach this page so I feel less dirty about saving time for the sake of this assignment.</p>
         <p>Here you can add new people to the staff displayed on the contact page.</p>
-        <form className="flex flex-col gap-2" onSubmit={(e) => handleSubmit(e)}>
+        <form className="flex flex-col gap-2" onSubmit={(e: FormEvent<HTMLFormElement>) => handleSubmit(e)}>
           <label htmlFor="name">Name:</label>
           <input 
             id="form-name" 
             value={formData.name}
             name="name" 
             className="p-2 rounded-xl border-2"
-            onChange={(e) => handleInputChange(e)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
             />
           <label htmlFor="email">Email:</label>
           <input 
@@ -65,7 +80,7 @@ export default function manage() {
             value={formData.email}
             name="email" 
             className="p-2 rounded-xl border-2"
-            onChange={(e) => handleInputChange(e)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
             />
           <label htmlFor="role">Role:</label>
           <input 
@@ -73,7 +88,7 @@ export default function manage() {
             value={formData.role}
             name="role" 
             className="p-2 rounded-xl border-2"
-            onChange={(e) => handleInputChange(e)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
             />
           <label htmlFor="about">About:</label>
           <input 
@@ -81,7 +96,7 @@ export default function manage() {
             value={formData.about}
             name="about"
             className="p-2 rounded-xl border-2"
-            onChange={(e) => handleInputChange(e)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => handleInputChange(e)}
             />
           <button className="border-1 rounded-xl bg-blue-500 p-2 font-bold">Submit</button>
         </form>

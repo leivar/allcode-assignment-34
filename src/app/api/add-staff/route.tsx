@@ -9,8 +9,6 @@ const schema = z.object({
   email: z.string().email()
 })
 
-//Work zod validation into NextResponses with custom status code
-
 export async function POST (request: { json: () => any; }) {
   const staffData = await request.json();
 
@@ -27,16 +25,21 @@ export async function POST (request: { json: () => any; }) {
     return NextResponse.json({ message: "Name cannot be empty."}, {status: 401 });
   }
 
-  const validatedData = schema.parse(staffData)
+  try {
+    const validatedData = schema.parse(staffData);
 
-  const staff = await prisma.staff.create({
-    data: {
-      name: validatedData.name,
-      email: validatedData.email,
-      role: validatedData.role,
-      about: validatedData.about,
-    },
-  });
-
-  return NextResponse.json({ message: `Successfully added ${validatedData.email} to staff.`},{ status: 200 });
-}
+    const staff = await prisma.staff.create({
+      data: {
+        name: validatedData.name,
+        email: validatedData.email,
+        role: validatedData.role,
+        about: validatedData.about,
+      },
+    });
+  
+    return NextResponse.json({ message: `Successfully added ${staff.email} to staff.`},{ status: 200 });
+  }catch(error){
+    return NextResponse.json({ message: "Something went wrong, please try again later."})
+  };
+   
+};
