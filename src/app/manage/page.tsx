@@ -2,8 +2,7 @@
 
 import Navbar from "../components/navbarAdmin/page";
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { addStaff } from "@/lib/axios/axios";
+import { addStaff } from "../../lib/axios/axios";
 
 export default function manage() {
 
@@ -11,11 +10,12 @@ export default function manage() {
     name: "",
     email: "",
     role: "",
-    about: "",
+    about: ""
   });
 
 
   const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,21 +25,23 @@ export default function manage() {
       });
     };
 
-  const handleSubmit = (e) => {
+  const handleSubmit  = async(e) => {
     e.preventDefault();
-    addStaff(formData);
+    addStaff(formData)
+    .then((result) => {
+        if(result.response.status!==200){
+          setError(JSON.stringify(result.response.data.message, null,2));
+        }else{
+          setError("");
+        };
+    });
     setFormData({
       name: "",
       email: "",
       role: "",
-      about: "",
+      about: ""
     })
   };
-
-  const newStaff = useMutation({
-    mutationFn: () => addStaff(formData),
-    onSuccess: () => setSuccess("You have successfully updated the contact page with a new staff member.")
-  });
   
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -84,6 +86,7 @@ export default function manage() {
           <button className="border-1 rounded-xl bg-blue-500 p-2 font-bold">Submit</button>
         </form>
         {success? <p className="bg-green-500 rounded-xl p-2">{success}</p> : null}
+        {error? <p className="bg-red-500 rounded-xl p-2">{error}</p> : null}
       </main>
     </div>
   )

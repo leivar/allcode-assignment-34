@@ -1,8 +1,7 @@
 "use client";
-import { useState } from "react";
 import Navbar from "../components/navbarAdmin/page";
 import { useQuery } from "@tanstack/react-query";
-import { getStaff } from "@/lib/axios/axios";
+import { getStaff } from "../../lib/axios/axios";
 
 export default function contact() {
 
